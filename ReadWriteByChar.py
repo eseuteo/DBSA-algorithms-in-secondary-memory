@@ -50,22 +50,22 @@ def writeln_char(outputFile, line):
 
 #------------------------------------
 # Sequential Reading function - Character
-def length_char(f):
-  sum = 0
-  seekPos = 0
+# def length_char(f):
+#   sum = 0
+#   seekPos = 0
 
-  # Open file for reading in binary mode switching buffering off
-  file = open(f, "r+b", 0)
+#   # Open file for reading in binary mode switching buffering off
+#   file = open(f, "r+b", 0)
 
-  # Read all lines in a file. readln_char returns the line that was read and the position of the next line to be read
-  # When the end of the file is reached, seekPos will be -1, ending the loop
-  while seekPos != -1:
-    line, seekPos = readln_char(file,seekPos)
-    sum += len(line)
+#   # Read all lines in a file. readln_char returns the line that was read and the position of the next line to be read
+#   # When the end of the file is reached, seekPos will be -1, ending the loop
+#   while seekPos != -1:
+#     line, seekPos = readln_char(file,seekPos)
+#     sum += len(line)
 
-  file.close()
+#   file.close()
 
-  print("Length: " + str(sum))
+#   print("Length: " + str(sum))
 #------------------------------------
 
 #------------------------------------
@@ -95,20 +95,20 @@ def randjump(f, j):
 #------------------------------------
 
 # Main
-filePath = "C:/tmp_DSA/imdb/"
-fileName = "company_name.csv"
+# filePath = "C:/tmp_DSA/imdb/"
+# fileName = "company_name.csv"
 
-inputFile = filePath + fileName
-randomJumps = 100000
+# inputFile = filePath + fileName
+# randomJumps = 100000
 
-#+++
-# Sequential reading
-start = datetime.datetime.now()
-length_char(inputFile) # Sequential Reading
-end = datetime.datetime.now()
-executionTime = end - start
-time_ms = int(executionTime.total_seconds() * 1000) # milliseconds
-print("Sequential Reading (By Character) Time: " + str(time_ms) + "ms")
+# #+++
+# # Sequential reading
+# start = datetime.datetime.now()
+# length_char(inputFile) # Sequential Reading
+# end = datetime.datetime.now()
+# executionTime = end - start
+# time_ms = int(executionTime.total_seconds() * 1000) # milliseconds
+# print("Sequential Reading (By Character) Time: " + str(time_ms) + "ms")
 #+++
 
 #+++
