@@ -94,22 +94,22 @@ def randjump(f, j):
   print("Length: " + str(sum))
 #------------------------------------
 
-# Main
-filePath = "C:/tmp_DSA/imdb/"
-fileName = "name.csv"
+# # Main
+# filePath = "C:/tmp_DSA/imdb/"
+# fileName = "name.csv"
 
-inputFile = filePath + fileName
-randomJumps = 100000
+# inputFile = filePath + fileName
+# randomJumps = 100000
 
-#+++
-# Sequential reading
-start = datetime.datetime.now()
-length_char(inputFile) # Sequential Reading
-end = datetime.datetime.now()
-executionTime = end - start
-time_ms = int(executionTime.total_seconds() * 1000) # milliseconds
-print("Sequential Reading (By Character) Time: " + str(time_ms) + "ms")
-#+++
+# #+++
+# # Sequential reading
+# start = datetime.datetime.now()
+# length_char(inputFile) # Sequential Reading
+# end = datetime.datetime.now()
+# executionTime = end - start
+# time_ms = int(executionTime.total_seconds() * 1000) # milliseconds
+# print("Sequential Reading (By Character) Time: " + str(time_ms) + "ms")
+# #+++
 
 #+++
 # Random reading

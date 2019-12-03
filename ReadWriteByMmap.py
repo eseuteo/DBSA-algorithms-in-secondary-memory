@@ -1,32 +1,22 @@
 import mmap
 import os
 
-def readln_mmap(inputFile, filePosition, bufferSize):
-    # Obtaining values to be used in mapping, based on the input parameters
-    actualFilePosition = filePosition // mmap.ALLOCATIONGRANULARITY * mmap.ALLOCATIONGRANULARITY
-    actualBufferSize = (bufferSize // mmap.ALLOCATIONGRANULARITY + 1) * mmap.ALLOCATIONGRANULARITY
-    fileSize = os.fstat(inputFile.fileno()).st_size
+def read_bline(mapping, filePosition, bufferSize):
+    mapping.seek(filePosition)
+    bline = mapping.read(bufferSize)
+    return bline
 
-    # Ensure legal mapping (not larger than the file)
-    if fileSize < actualFilePosition + actualBufferSize:
-        actualBufferSize = fileSize - actualFilePosition
-
-    mapping = mmap.mmap(inputFile.fileno(), actualBufferSize, access=mmap.ACCESS_READ, offset=actualFilePosition)
-    mapping.seek(filePosition - actualFilePosition)
-    chunk = mapping.read(bufferSize)
-    if not chunk:
+def readln_mmap(mapping, filePosition, actualFilePosition, bufferSize, actualBufferSize):
+    bline = read_bline(mapping, filePosition - actualFilePosition, bufferSize)
+    if not bline:
         return None, filePosition
-    bline = chunk
     newFilePosition = filePosition + len(bline)
     while not b'\n' in bline:
-        actualFilePosition = newFilePosition // mmap.ALLOCATIONGRANULARITY * mmap.ALLOCATIONGRANULARITY
-        if fileSize < actualFilePosition + actualBufferSize:
-            actualBufferSize = fileSize - actualFilePosition
-        mapping = mmap.mmap(inputFile.fileno(), actualBufferSize, access=mmap.ACCESS_READ, offset=actualFilePosition)
-        mapping.seek(newFilePosition - actualFilePosition)
-        newChunk = mapping.read(bufferSize)
-        if not newChunk:
-            break
+        if newFilePosition + bufferSize > actualFilePosition + actualBufferSize:
+            line = bline.decode("utf-8", errors='ignore').split('\n')[0]
+            current_position = filePosition + len(line)
+            return line, current_position
+        newChunk = read_bline(mapping, newFilePosition - actualFilePosition, bufferSize)
         bline += newChunk
         newFilePosition = newFilePosition + len(newChunk)
     line = bline.decode("utf-8", errors='ignore').split('\n')[0] + '\n'

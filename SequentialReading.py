@@ -1,3 +1,5 @@
+import mmap
+import os
 from time import time
 from ReadWriteByChar import readln_char
 from ReadWriteByLine import readln_line
@@ -55,11 +57,40 @@ def length_mmap(fileName, bufferSize):
     sum = 0
     current_position = 0
 
-    while True:
-        line, current_position = readln_mmap(file, current_position, bufferSize)
+    # Obtaining values to be used in mapping, based on the input parameters
+    actualFilePosition = current_position // mmap.ALLOCATIONGRANULARITY * mmap.ALLOCATIONGRANULARITY
+    actualBufferSize = (bufferSize // mmap.ALLOCATIONGRANULARITY + 1) * mmap.ALLOCATIONGRANULARITY
+    fileSize = os.fstat(file.fileno()).st_size
+
+    # Ensure legal mapping (not larger than the file)
+    if fileSize < actualFilePosition + actualBufferSize:
+        actualBufferSize = fileSize - actualFilePosition
+
+    mapping = mmap.mmap(file.fileno(), actualBufferSize, access=mmap.ACCESS_READ, offset=actualFilePosition)
+
+    incompleteLine = False
+
+    while True: # and sum < fileSize ?
+        line, current_position = readln_mmap(mapping, current_position, actualFilePosition, bufferSize, actualBufferSize)
         if not line or line == "b''":
             break
+        if '\n' not in line:
+            incompleteLine = True
+        # Check if outside mapped portion
+        if current_position >= actualFilePosition + actualBufferSize:
+            # print("remapping")
+            actualFilePosition = current_position // mmap.ALLOCATIONGRANULARITY * mmap.ALLOCATIONGRANULARITY
+            # Ensure legal portion is mapped (not too big)
+            if fileSize < actualFilePosition + actualBufferSize:
+                actualBufferSize = fileSize - actualFilePosition
+            mapping = mmap.mmap(file.fileno(), actualBufferSize, access=mmap.ACCESS_READ, offset=actualFilePosition)
+            if incompleteLine:
+                line_part, current_position = readln_mmap(mapping, current_position, actualFilePosition, bufferSize, actualBufferSize)
+                line += line_part
+                incompleteLine = False
         sum += len(line)
+        actualFilePosition = current_position // mmap.ALLOCATIONGRANULARITY * mmap.ALLOCATIONGRANULARITY
+        actualBufferSize = (bufferSize // mmap.ALLOCATIONGRANULARITY + 1) * mmap.ALLOCATIONGRANULARITY
 
     file.close()
     return sum
