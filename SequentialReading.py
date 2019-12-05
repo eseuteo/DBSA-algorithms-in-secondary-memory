@@ -70,7 +70,7 @@ def length_mmap(fileName, bufferSize):
 
     incompleteLine = False
 
-    while True: # and sum < fileSize ?
+    while sum < fileSize:
         line, current_position = readln_mmap(mapping, current_position, actualFilePosition, bufferSize, actualBufferSize)
         if not line or line == "b''":
             break
