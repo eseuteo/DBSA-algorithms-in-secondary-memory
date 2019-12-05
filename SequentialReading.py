@@ -4,7 +4,7 @@ from time import time
 from ReadWriteByChar import readln_char
 from ReadWriteByLine import readln_line
 from ReadWriteByBuffer import readln_buffer
-from ReadWriteByMmap import readln_mmap
+from ReadWriteByMmap import read_bline_mmap
 
 #------------------------------------
 # Sequential Reading function - Character
@@ -71,10 +71,10 @@ def length_mmap(fileName, bufferSize):
     incompleteLine = False
 
     while sum < fileSize:
-        line, current_position = readln_mmap(mapping, current_position, actualFilePosition, bufferSize, actualBufferSize)
+        line, current_position = read_bline_mmap(mapping, current_position, actualFilePosition, bufferSize, actualBufferSize)
 
         # If line exceedes mapping
-        if '\n' not in line:
+        if b'\n' not in line:
             incompleteLine = True
         # If remapping needed
         if current_position >= actualFilePosition + actualBufferSize and current_position < fileSize:
@@ -86,12 +86,11 @@ def length_mmap(fileName, bufferSize):
             mapping = mmap.mmap(file.fileno(), actualBufferSize, access=mmap.ACCESS_READ, offset=actualFilePosition)
 
             if incompleteLine:
-                line_part, current_position = readln_mmap(mapping, current_position, actualFilePosition, bufferSize, actualBufferSize)
+                line_part, current_position = read_bline_mmap(mapping, current_position, actualFilePosition, bufferSize, actualBufferSize)
                 line += line_part
                 incompleteLine = False
-        if sum == 4702206:
-            print('asd')
-        sum += len(line)
+
+        sum += len(line.decode("utf-8", errors="ignore"))
 
     file.close()
     return sum
