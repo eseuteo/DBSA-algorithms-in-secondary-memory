@@ -77,7 +77,7 @@ def length_mmap(fileName, bufferSize):
         if '\n' not in line:
             incompleteLine = True
         # If remapping needed
-        if current_position >= actualFilePosition + actualBufferSize:
+        if current_position >= actualFilePosition + actualBufferSize and current_position < fileSize:
             actualFilePosition = current_position // mmap.ALLOCATIONGRANULARITY * mmap.ALLOCATIONGRANULARITY
 
             if fileSize < actualFilePosition + actualBufferSize:
@@ -89,7 +89,8 @@ def length_mmap(fileName, bufferSize):
                 line_part, current_position = readln_mmap(mapping, current_position, actualFilePosition, bufferSize, actualBufferSize)
                 line += line_part
                 incompleteLine = False
-
+        if sum == 4702206:
+            print('asd')
         sum += len(line)
 
     file.close()

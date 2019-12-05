@@ -25,16 +25,18 @@ def readln_mmap(mapping, filePosition, actualFilePosition, bufferSize, actualBuf
 
     if not bline:
         return None, filePosition
-        
-    newFilePosition = filePosition + len(bline)
+
+    trailingNewLine = '\n'
+
     while not b'\n' in bline:
+        chunk = bline
+        newFilePosition = filePosition + len(chunk)
         if newFilePosition + bufferSize > actualFilePosition + actualBufferSize:
-            line = bline.decode("utf-8", errors='ignore').split('\n')[0]
-            current_position = filePosition + len(line)
-            return line, current_position
-        newChunk = read_bline(mapping, newFilePosition - actualFilePosition, bufferSize)
-        bline += newChunk
-        newFilePosition = newFilePosition + len(newChunk)
-    line = bline.decode("utf-8", errors='ignore').split('\n')[0] + '\n'
+            trailingNewLine = ''
+            break
+        chunk = read_bline(mapping, newFilePosition - actualFilePosition, bufferSize)
+        bline += chunk
+
+    line = bline.decode("utf-8", errors='ignore').split('\n')[0] + trailingNewLine
     current_position = filePosition + len(line)
     return line, current_position
