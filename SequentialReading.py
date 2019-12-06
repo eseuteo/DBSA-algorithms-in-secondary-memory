@@ -41,15 +41,60 @@ def length_line(fileName):
     return sum
 
 def length_buffer(fileName, bufferSize):
-    file = open(fileName, 'r+b', bufferSize)
+    inputFile = open(fileName, 'r+b', bufferSize)
+    sumChunk = 0
     sum = 0
-    current_position = 0
+    filePosition = 0
+    isLineComplete = 1
+    bufferPosition = 0
+    bLineTemp = b""
+    end = 0
+
+    fileSize = os.fstat(inputFile.fileno()).st_size
+    if fileSize < filePosition + bufferSize:
+        bufferSize = fileSize - filePosition
+
+    inputFile.seek(filePosition)
+    chunk = inputFile.read(bufferSize)
+    
     while True:
-        line, current_position = readln_buffer(file, current_position, bufferSize)
-        if not line or line == "b''":
+        print(chunk)
+        while sumChunk < bufferSize:
+            bline, bufferPosition = readln_buffer(chunk, bufferPosition)
+
+            # Line (or part of a line) has already been read, so values are updated
+            lineLength = len(bline)
+            sum += lineLength
+            sumChunk += lineLength
+
+            if bline.find(b"\n") == -1: # End of line was not found in latest line read
+                isLineComplete = 0
+                bLineTemp += bline # Since line is incomplete, the part of the line already read is stored in a temporary variable
+            elif isLineComplete == 0: # Char '\n' is found but there is an incomplete line pending
+                bline = bLineTemp + bline
+                isLineComplete = 1
+
+            if isLineComplete == 1:
+                print(bline.decode("utf-8")) # This is where something can be done with lines read
+                bLineTemp = b""
+            
+            if sum >= fileSize: # When the number of bytes read matches the size of the file, the loop should break
+                if bline.find(b"\n") == -1: # If the last line in the file does not end in '\n', it can be retrieved from here
+                    print(bline.decode("utf-8"))
+                end = 1
+                break
+        
+        if end == 1:
             break
-        sum += len(line)
-    file.close()
+        
+        # If the code reaches this part, it means that the buffer was read entirely but the file still has more data
+        filePosition += bufferPosition
+        inputFile.seek(filePosition)
+        chunk = inputFile.read(bufferSize)
+        sumChunk = 0
+        bufferPosition = 0
+    
+    inputFile.close()
     return sum
 
 def length_mmap(fileName, bufferSize):
