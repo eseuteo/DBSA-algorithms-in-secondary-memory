@@ -69,10 +69,13 @@ def length_mmap(fileName, bufferSize):
     mapping = mmap.mmap(file.fileno(), actualBufferSize, access=mmap.ACCESS_READ, offset=actualFilePosition)
 
     incompleteLine = False
+    prev_current_position = 0
 
-    while sum < fileSize:
+    while True:
+        prev_current_position = current_position
         line, current_position = read_bline_mmap(mapping, current_position, actualFilePosition, bufferSize, actualBufferSize)
-
+        if not line:
+            break
         # If line exceedes mapping
         if b'\n' not in line:
             incompleteLine = True
@@ -89,8 +92,7 @@ def length_mmap(fileName, bufferSize):
                 line_part, current_position = read_bline_mmap(mapping, current_position, actualFilePosition, bufferSize, actualBufferSize)
                 line += line_part
                 incompleteLine = False
-
-        sum += len(line.decode("utf-8", errors="ignore"))
+        sum += current_position - prev_current_position
 
     file.close()
     return sum
