@@ -1,4 +1,4 @@
-def readln_buffer(inputFile, filePosition, bufferSize):
+def readln_buffer(chunk, bufferPosition):
     """
     Takes a File Object inputFile, an int filePosition that indicates
     a position in a file and an int bufferSize that indicates the 
@@ -10,19 +10,18 @@ def readln_buffer(inputFile, filePosition, bufferSize):
     opened file with mode "r+b" and specifying a certain buffering
     parameter
     """
-    inputFile.seek(filePosition)
-    chunk = inputFile.read(bufferSize)
-    if not chunk:
-        return None, filePosition
-    bline = chunk
-    while not b'\n' in bline:
-        newChunk = inputFile.read(bufferSize)
-        if not newChunk:
-            break
-        bline += newChunk
-    line = bline.decode("utf-8", errors='ignore').split('\n')[0] + '\n'
-    current_position = filePosition + len(line)
-    return line, current_position
+    auxChunk = chunk[bufferPosition:]
+    retPos = auxChunk.find(b"\n")
+    if retPos != -1:
+        retPos += 1
+        bline = auxChunk[:retPos]
+    else:
+        bline = auxChunk
+    
+    lineLength = len(bline)
+    bufferPosition += lineLength
+
+    return bline, bufferPosition
 
 def writeln_buffer(outputFile, line, bufferSize):
     """
