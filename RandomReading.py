@@ -1,88 +1,90 @@
 import mmap
 import os
-import random
 from time import time
+import random
 from ReadWriteByChar import readln_char
 from ReadWriteByLine import readln_line
 from ReadWriteByBuffer import readln_buffer
 from ReadWriteByMmap import read_bline_mmap
 
-def randjump_char(f, j):
+#------------------------------------
+# Random Reading function - Character
+
+#------------------------------------
+# Random Reading function - Buffer Not Defined
+
+#------------------------------------
+# Random Reading function - Buffer Defined
+def length_buffer_rand(fileName, randJumps, bufferSize):
+    inputFile = open(fileName, 'r+b', bufferSize)
+    # sumChunk = 0
     sum = 0
-    count = 0
+    fileSize = os.fstat(inputFile.fileno()).st_size
 
-    fileSize = os.stat(f).st_size
-    file = open(f, "r+b", 0)
-
-    while count < j:
-        randPosition = random.randint(0, fileSize)
-        bline, _ = readln_char(file,randPosition)
-        sum += len(bline)
-        count += 1
-
-    file.close()
-    return sum
-
-def randjump_readln(f, j):
-    sum = 0
-    count = 0
-
-    fileSize = os.stat(f).st_size
-    file = open(f, "r+b")
-
-    while count < j:
-        randPosition = random.randint(0, fileSize)
-        line, _ = readln_line(file, randPosition)
-        sum += len(line)
-        print(sum)
-        count += 1
-
-    file.close()
-    return sum
-
-def randjump_buffer(f, j, bufferSize):
+    numlst = []
+    while len(numlst) < randJumps:
+        rnd = random.randint(0,fileSize)
+        if rnd in numlst:
+            continue
+        else:
+            numlst += [rnd]
     
+    print(numlst)
 
-def randjump_mmap(f, j, bufferSize):
-    sum = 0
-    count = 0
+    bufferFilePosition = 0
+    bufferPosition = 0
+    inputFile.seek(bufferFilePosition)
+    chunk = inputFile.read(bufferSize)
+    print(chunk)
 
-    fileSize = os.stat(f).st_size
-    file = open(f, "r+b")
+    for n in numlst:
+        isLineComplete = 1
+        bLineTemp = b""
+        print("Reading position: " + str(n))
+        end = 0
 
-    # Obtaining values to be used in mapping, based on the input parameters
-    actualBufferSize = (bufferSize // mmap.ALLOCATIONGRANULARITY + 1) * mmap.ALLOCATIONGRANULARITY
-    fileSize = os.fstat(file.fileno()).st_size
+        if n < bufferFilePosition or n > (bufferFilePosition + bufferSize):
+            inputFile.seek(n)
+            chunk = inputFile.read(bufferSize)
+            bufferFilePosition = n
+            bufferPosition = 0
+            print(chunk)
+        else:
+            bufferPosition += (n - bufferFilePosition)
+    
+        while True:
+            bline, bufferPosition = readln_buffer(chunk, bufferPosition)
 
-    prev_current_position = -1
+            # Line (or part of a line) has already been read, so values are updated
+            lineLength = len(bline)
+            sum += lineLength
+            # sumChunk += lineLength
 
-    while count < j:
-        randPosition = random.randint(0, fileSize)
-        actualFilePosition = randPosition // mmap.ALLOCATIONGRANULARITY * mmap.ALLOCATIONGRANULARITY
-        
-        if fileSize < actualFilePosition + actualBufferSize:
-            actualBufferSize = fileSize - actualFilePosition
+            if bline.find(b"\n") == -1: # End of line was not found in latest line read
+                isLineComplete = 0
+                bLineTemp += bline # Since line is incomplete, the part of the line already read is stored in a temporary variable
+            elif isLineComplete == 0: # Char '\n' is found but there is an incomplete line pending
+                bline = bLineTemp + bline
+                isLineComplete = 1
 
-        if not actualFilePosition <= prev_current_position < actualFilePosition + bufferSize:
-            mapping = mmap.mmap(file.fileno(), actualBufferSize, access=mmap.ACCESS_READ, offset=actualFilePosition)
-        bline, currentPosition = read_bline_mmap(mapping, randPosition, actualFilePosition, bufferSize, actualBufferSize)
+            if isLineComplete == 1:
+                print(bline.decode("utf-8")) # This is where something can be done with lines read
+                bLineTemp = b""
+                break
 
-        if not b'\n' in bline:
-            actualFilePosition = currentPosition // mmap.ALLOCATIONGRANULARITY * mmap.ALLOCATIONGRANULARITY
-
-            if fileSize < actualFilePosition + actualBufferSize:
-                actualBufferSize = fileSize - actualFilePosition
-
-            mapping = mmap.mmap(file.fileno(), actualBufferSize, access=mmap.ACCESS_READ, offset=actualFilePosition)
-
-            line_part, currentPosition = read_bline_mmap(mapping, currentPosition, actualFilePosition, bufferSize, actualBufferSize)
-            bline += line_part
-        
-        line = bline.decode("utf-8")
-        prev_current_position = currentPosition
-        sum += len(line)
-        print(sum)
-        count += 1
-
-    file.close()
+            # If we read the last line of the file, we need to let know the system the file has ended and can't read further
+            if bufferFilePosition + bufferPosition >= fileSize:
+                end = 1
+            
+            # Quite the loop if file ends
+            if end == 1:
+                break
+            
+            # If the code reaches this part, it means that the buffer was read entirely but the file still has more data
+            bufferFilePosition += bufferPosition
+            inputFile.seek(bufferFilePosition)
+            chunk = inputFile.read(bufferSize)
+            bufferPosition = 0
+            
+    inputFile.close()
     return sum
