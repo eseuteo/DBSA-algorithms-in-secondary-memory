@@ -119,4 +119,3 @@ def randjump_mmap(f, j, bufferSize):
         count += 1
 
     file.close()
-    return sum
