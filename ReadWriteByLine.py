@@ -16,12 +16,11 @@ def readln_line(inputFile, filePosition):
     currPosition = inputFile.tell()
 
     bline = inputFile.readline()
-    line = bline.decode("utf-8", errors='ignore')
-    currPosition = filePosition + len(line)
-    return line, currPosition
+    currPosition = filePosition + len(bline)
+    return bline, currPosition
 
 
-def writeln_line(outputFile, line):
+def writeln_line(outputFile, bline):
     """
     Takes a File Object outputFile and a str line containing a text
     line to be written to the outputFile. Then writes line to
@@ -31,4 +30,4 @@ def writeln_line(outputFile, line):
     opened file with mode "a+b" and without specifying the buffering
     parameter
     """
-    outputFile.write(line.encode("utf-8"))
+    outputFile.write(bline)

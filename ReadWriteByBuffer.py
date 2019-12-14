@@ -36,4 +36,4 @@ def writeln_buffer(outputFile, line, bufferSize):
     """
     chunkList = [line[i:i+bufferSize] for i in range(0, len(line), bufferSize)]
     for chunk in chunkList:
-        outputFile.write(chunk.encode("utf-8"))
+        outputFile.write(chunk)
