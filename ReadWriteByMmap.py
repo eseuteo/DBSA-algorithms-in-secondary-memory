@@ -24,7 +24,7 @@ def read_bline_mmap(mapping, filePosition, actualFilePosition, bufferSize, actua
     bline = read_bline(mapping, (filePosition - actualFilePosition), bufferSize)
 
     if not bline:
-        return None, filePosition
+        return None, filePosition + 1
 
     trailingNewLine = b'\n'
 

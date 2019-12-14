@@ -11,7 +11,7 @@ def randjump_char(f, j):
     sum = 0
     count = 0
 
-    fileSize = os.stat(f).st_size
+    fileSize = os.stat(f).st_size - 1
     file = open(f, "r+b", 0)
 
     while count < j:
@@ -27,21 +27,53 @@ def randjump_readln(f, j):
     sum = 0
     count = 0
 
-    fileSize = os.stat(f).st_size
+    fileSize = os.stat(f).st_size - 1
     file = open(f, "r+b")
 
     while count < j:
         randPosition = random.randint(0, fileSize)
         line, _ = readln_line(file, randPosition)
         sum += len(line)
-        print(sum)
         count += 1
 
     file.close()
     return sum
 
+def cannotUseLastBuffer(bufferStart, newPosition, bufferSize):
+    return not bufferStart <= newPosition < bufferStart + bufferSize
+
+def usedWholeBuffer(currentPosition, bufferSize):
+    return currentPosition == bufferSize
+
 def randjump_buffer(f, j, bufferSize):
-    
+    sum = 0
+    count = 0
+
+    fileSize = os.stat(f).st_size - 1
+    file = open(f, "r+b")
+
+    prevBufferStartingPoint = -1
+    buffer = None
+
+    while count < j:
+        randPosition = random.randint(0, fileSize)
+        overallPosition = randPosition
+        currentPositionInBuffer = 0
+
+        line = b''
+        while b'\n' not in line:
+            if not buffer or cannotUseLastBuffer(prevBufferStartingPoint, randPosition, bufferSize) or usedWholeBuffer(currentPositionInBuffer, bufferSize):
+                overallPosition += currentPositionInBuffer
+                file.seek(overallPosition)
+                buffer = file.read(bufferSize)
+                currentPositionInBuffer = 0
+                prevBufferStartingPoint = overallPosition
+            tempLine, currentPositionInBuffer = readln_buffer(buffer, currentPositionInBuffer)
+            line += tempLine
+
+        sum += len(line)
+        count += 1
+    return sum
 
 def randjump_mmap(f, j, bufferSize):
     sum = 0
@@ -52,36 +84,38 @@ def randjump_mmap(f, j, bufferSize):
 
     # Obtaining values to be used in mapping, based on the input parameters
     actualBufferSize = (bufferSize // mmap.ALLOCATIONGRANULARITY + 1) * mmap.ALLOCATIONGRANULARITY
-    fileSize = os.fstat(file.fileno()).st_size
 
-    prev_current_position = -1
+    prevMappingStartingPoint = -1
+    mapping = None
+
+    # Declare actualFilePosition variable
+    actualFilePosition = 0
 
     while count < j:
-        randPosition = random.randint(0, fileSize)
-        actualFilePosition = randPosition // mmap.ALLOCATIONGRANULARITY * mmap.ALLOCATIONGRANULARITY
+        randPosition = random.randint(0, fileSize - 1)
+        currentPositionInMapping = randPosition
         
-        if fileSize < actualFilePosition + actualBufferSize:
-            actualBufferSize = fileSize - actualFilePosition
-
-        if not actualFilePosition <= prev_current_position < actualFilePosition + bufferSize:
-            mapping = mmap.mmap(file.fileno(), actualBufferSize, access=mmap.ACCESS_READ, offset=actualFilePosition)
-        bline, currentPosition = read_bline_mmap(mapping, randPosition, actualFilePosition, bufferSize, actualBufferSize)
-
-        if not b'\n' in bline:
-            actualFilePosition = currentPosition // mmap.ALLOCATIONGRANULARITY * mmap.ALLOCATIONGRANULARITY
-
-            if fileSize < actualFilePosition + actualBufferSize:
-                actualBufferSize = fileSize - actualFilePosition
-
-            mapping = mmap.mmap(file.fileno(), actualBufferSize, access=mmap.ACCESS_READ, offset=actualFilePosition)
-
-            line_part, currentPosition = read_bline_mmap(mapping, currentPosition, actualFilePosition, bufferSize, actualBufferSize)
-            bline += line_part
+        bline = b''
+        # While we dont get a complete line
+        while not b'\n' in bline:
+            # If we need to remap or create the first mapped portion
+            if not mapping or cannotUseLastBuffer(prevMappingStartingPoint, randPosition, bufferSize) or usedWholeBuffer(currentPositionInMapping - actualFilePosition, actualBufferSize):
+                # Determine the offset
+                actualFilePosition = currentPositionInMapping // mmap.ALLOCATIONGRANULARITY * mmap.ALLOCATIONGRANULARITY
+                # Trim the size of the buffer if it excedes the size of the file
+                if fileSize < actualFilePosition + actualBufferSize:
+                    actualBufferSize = fileSize - actualFilePosition
+                # Create the mapping
+                mapping = mmap.mmap(file.fileno(), actualBufferSize, access=mmap.ACCESS_READ, offset=actualFilePosition)
+                # Store the starting point of mapping (so it is used if next randPosition is in the same mapped portion)
+                prevMappingStartingPoint = actualFilePosition
+                actualBufferSize = (bufferSize // mmap.ALLOCATIONGRANULARITY + 1) * mmap.ALLOCATIONGRANULARITY
+            # Read bline to tempLine, update currentPositionInMapping
+            tempLine, currentPositionInMapping = read_bline_mmap(mapping, currentPositionInMapping, actualFilePosition, bufferSize, actualBufferSize)
+            bline += tempLine
         
-        line = bline.decode("utf-8")
-        prev_current_position = currentPosition
+        line = bline.decode("utf-8", errors="ignore")
         sum += len(line)
-        print(sum)
         count += 1
 
     file.close()
