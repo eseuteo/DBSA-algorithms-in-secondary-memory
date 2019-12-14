@@ -1,5 +1,6 @@
 from ReadWriteByMmap import getNewMapRegion, writeln_mmap
 from ReadWriteByLine import readln_line, writeln_line
+from ReadWriteByBuffer import readln_buffer, writeln_buffer
 from ClassFileObject import FileObject
 import os
 
@@ -15,6 +16,22 @@ def rrmerge_Line_Line(file_list, outputFile):
                 if not line:
                     file.isClosed = True
                 writeln_line(file_to_write, line)
+
+# Read/Write with defined buffer size
+# Based on length_line
+def rrmerge_line_buffer(fileListArray, outputFilePath, bufferSize):
+    fileObjectArray = []
+    outputFile = open(outputFilePath, 'w+b')
+    for file in fileListArray:
+        fileObjectArray.append(FileObject(open(file, 'r+b'), 0, False))
+    while not all([x.isClosed for x in fileObjectArray]):
+        for file in fileObjectArray:
+            if not file.isClosed:
+                line, file.readPos = readln_line(file.fileObject, file.readPos)
+                if not line:
+                    file.isClosed = True
+                else:
+                    writeln_buffer(outputFile, line, bufferSize)
 
 def rrmerge_line_mmap(inputFiles, outputFile, bufferSize, writePosition):
     files_to_read = []
