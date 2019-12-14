@@ -1,16 +1,17 @@
-import mmap
 import os
+import json
+import csv
+from pathlib import Path
 from time import time
-from CombinedReadWrite import read_length_line_write_mmap
+from CombinedReadWrite import rrmerge_Line_Line
 
-# # Main
-filePath = "C:/tmp_DSA/test/"
-inputFileName = "aka_name.csv"
-outputFileName = "mmap_test.csv"
+with open(str(Path.cwd())+'/Experiment1_3_parameters.json') as parametersFile:
+    parameters = json.load(parametersFile)
+    csv_folder = parameters['csv_folder']
+    output_filename = parameters['output_filename']
 
-inputFile = filePath + inputFileName
-outputFile = filePath + outputFileName
-bufferSize = 100
-writePosition = 0
+filenames = []
+for filename in os.listdir(csv_folder):
+    filenames.append(csv_folder + '/' + filename)
 
-read_length_line_write_mmap(inputFile, outputFile, bufferSize, writePosition)
+rrmerge_Line_Line(filenames, output_filename)

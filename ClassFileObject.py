@@ -5,7 +5,7 @@ class FileObject:
     readBuffer = None
 
     # parameterized constructor
-    def __init__(self, fileObject, readPos, isClosed, readBuffer):
+    def __init__(self, fileObject, readPos, isClosed, readBuffer = None):
         self.fileObject = fileObject
         self.readPos = readPos
         self.isClosed = isClosed

@@ -3,9 +3,9 @@ from ReadWriteByLine import readln_line, writeln_line
 from ClassFileObject import FileObject
 import os
 
-def rrmerge_Line_Line(file_list):
+def rrmerge_Line_Line(file_list, outputFile):
     files_to_read = []
-    file_to_write = open('output', 'r+b')
+    file_to_write = open(outputFile, 'r+b')
     for file in file_list:
         files_to_read.append(FileObject(open(file, 'r+b'), 0, False))
     while not all([x.isClosed for x in files_to_read]):
