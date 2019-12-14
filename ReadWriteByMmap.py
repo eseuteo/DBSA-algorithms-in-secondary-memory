@@ -19,7 +19,8 @@ def read_bline_mmap(mapping, filePosition, actualFilePosition, bufferSize, actua
     and an int (actualBufferSize).
     Returns the byte string existing in mapping from (filePosition - 
     actualFilePosition), by chunks of size bufferSize until the next 
-    newline, as well as the position the next line starts.
+    newline (or until the end of the mapped portion), as well as the 
+    position the next line starts.
     """
     bline = read_bline(mapping, (filePosition - actualFilePosition), bufferSize)
 

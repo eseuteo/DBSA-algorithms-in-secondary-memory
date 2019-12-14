@@ -2,6 +2,11 @@ from ReadWriteByMmap import getNewMapRegion, writeln_mmap
 from ReadWriteByLine import readln_line
 import os
 
+def rrmerge_Line_Line(file_list):
+    files_to_read = []
+    for file in file_list:
+        files_to_read.append(jesus_objeto(file.open()))
+
 # Based on length_line
 def read_length_line_write_mmap(inputFile, outputFile, bufferSize, writePosition):
     rFile = open(inputFile, 'r+b')

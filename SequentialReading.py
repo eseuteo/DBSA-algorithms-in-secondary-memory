@@ -58,7 +58,6 @@ def length_buffer(fileName, bufferSize):
     chunk = inputFile.read(bufferSize)
     
     while True:
-        print(chunk)
         while sumChunk < bufferSize:
             bline, bufferPosition = readln_buffer(chunk, bufferPosition)
 
@@ -75,12 +74,12 @@ def length_buffer(fileName, bufferSize):
                 isLineComplete = 1
 
             if isLineComplete == 1:
-                print(bline.decode("utf-8")) # This is where something can be done with lines read
+                # print(bline.decode("utf-8")) # This is where something can be done with lines read
                 bLineTemp = b""
             
             if sum >= fileSize: # When the number of bytes read matches the size of the file, the loop should break
-                if bline.find(b"\n") == -1: # If the last line in the file does not end in '\n', it can be retrieved from here
-                    print(bline.decode("utf-8"))
+                # if bline.find(b"\n") == -1: # If the last line in the file does not end in '\n', it can be retrieved from here
+                #     print(bline.decode("utf-8"))
                 end = 1
                 break
         

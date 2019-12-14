@@ -9,7 +9,6 @@ def readln_line(inputFile, filePosition):
     opened file with mode "r+b" and without specifying the buffering
     parameter
     """
-    
     bline = b""
 
     inputFile.seek(filePosition)

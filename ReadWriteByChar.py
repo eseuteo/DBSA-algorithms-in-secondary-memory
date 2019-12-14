@@ -2,12 +2,12 @@ import datetime
 from random import randint
 import os
 
-#------------------------------------
-# readln_char 
-# This function assumes that the inputFile parameter is an already opened file.
-# To open file for reading in binary mode switching buffering off:
-# file = open(outputFile, "r+b", 0)
 def readln_char(inputFile, filePosition):
+  """
+  This function assumes that the inputFile parameter is an already opened file.
+  To open file for reading in binary mode switching buffering off:
+  file = open(outputFile, "r+b", 0)
+  """
   bline = b""
 
   inputFile.seek(filePosition)
@@ -28,14 +28,13 @@ def readln_char(inputFile, filePosition):
       break
   
   return bline, currPosition
-#------------------------------------
 
-#------------------------------------
-# writeln_char 
-# This function assumes that the outputFile parameter is an already opened file.
-# To open file for writing (appending) in binary mode switching buffering off:
-# file = open(outputFile, "a+b", 0)
 def writeln_char(outputFile, line):
+  """
+  This function assumes that the outputFile parameter is an already opened file.
+  To open file for writing (appending) in binary mode switching buffering off:
+  file = open(outputFile, "a+b", 0)
+  """
   lineLength = len(line)
 
   for n in range(0, lineLength-1):
@@ -43,5 +42,3 @@ def writeln_char(outputFile, line):
     outputFile.write(c.encode("utf-8"))
   
   outputFile.write(b"\n")
-  # Command file.close() is done by the calling function
-#------------------------------------
