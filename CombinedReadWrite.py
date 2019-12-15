@@ -1,6 +1,6 @@
 from ReadWriteByMmap import getNewMapRegion, writeln_mmap
 from ReadWriteByLine import readln_line, writeln_line
-from ReadWriteByBuffer import readln_buffer
+from ReadWriteByBuffer import readln_buffer, writeln_buffer
 from ReadWriteByChar import writeln_char
 from RandomReading import cannotUseLastBuffer, usedWholeBuffer
 from ClassFileObject import FileObject
@@ -96,23 +96,46 @@ def rrmerge_Buffer_Line(file_list, outputFile, bufferSize):
                 else:
                     writeln_line(file_to_write, line)
 
+# Read/Write with defined buffer size
 # Based on length_line
-def read_length_line_write_mmap(inputFile, outputFile, bufferSize, writePosition):
-    rFile = open(inputFile, 'r+b')
-    currentReadPosition = 0
+def rrmerge_line_buffer(fileListArray, outputFilePath, bufferSize):
+    fileObjectArray = []
+    outputFile = open(outputFilePath, 'w+b')
+    for file in fileListArray:
+        fileObjectArray.append(FileObject(open(file, 'r+b'), 0, False))
+    while not all([x.isClosed for x in fileObjectArray]):
+        for file in fileObjectArray:
+            if not file.isClosed:
+                line, file.readPos = readln_line(file.fileObject, file.readPos)
+                if not line:
+                    file.isClosed = True
+                else:
+                    writeln_buffer(outputFile, line, bufferSize)
 
-    rFileSize = os.fstat(rFile.fileno()).st_size
+def rrmerge_line_mmap(inputFiles, outputFile, bufferSize, writePosition):
+    files_to_read = []
+    totalSize = 0
 
-    wFile = open(outputFile, 'r+b')
+    for inputFile in inputFiles:
+        rFile = open(inputFile, 'r+b')
 
-    mapping, actualFilePosition, actualBufferSize = getNewMapRegion(writePosition, bufferSize, rFileSize, wFile, 1)
+        rFileSize = os.fstat(rFile.fileno()).st_size
+        totalSize += rFileSize
 
-    while True:
-        bline, currentReadPosition = readln_line(rFile, currentReadPosition)
-        if not bline:
-            break
-        mapping, writePosition, actualFilePosition = writeln_mmap(mapping, writePosition, actualFilePosition, actualBufferSize, rFileSize, wFile, bline)
+        files_to_read.append(FileObject(rFile, 0, False, None))
     
+    wFile = open(outputFile, 'w+b')
+
+    mapping, actualFilePosition, actualBufferSize = getNewMapRegion(writePosition, bufferSize, totalSize, wFile, 1)
+    
+    while not all([x.isClosed for x in files_to_read]):
+        for file in files_to_read:
+            if not file.isClosed:
+                bline, file.readPos = readln_line(file.fileObject, file.readPos)
+                if not bline:
+                    file.fileObject.close()
+                    file.isClosed = True
+                else:
+                    mapping, writePosition, actualFilePosition = writeln_mmap(mapping, writePosition, actualFilePosition, actualBufferSize, totalSize, wFile, bline)
     mapping.close
     wFile.close()
-    rFile.close()
