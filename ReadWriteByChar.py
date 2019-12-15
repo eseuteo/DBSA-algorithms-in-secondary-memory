@@ -36,9 +36,8 @@ def writeln_char(outputFile, line):
   file = open(outputFile, "a+b", 0)
   """
   lineLength = len(line)
-
-  for n in range(0, lineLength-1):
-    c = line[n]
-    outputFile.write(c.encode("utf-8"))
+  c = b''
   
-  outputFile.write(b"\n")
+  for n in range(0, lineLength):
+    c = line[n]
+    outputFile.write(chr(c).encode("utf-8"))
