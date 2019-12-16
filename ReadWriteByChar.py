@@ -35,9 +35,10 @@ def writeln_char(outputFile, line):
   To open file for writing (appending) in binary mode switching buffering off:
   file = open(outputFile, "a+b", 0)
   """
-  lineLength = len(line)
-  c = b''
-  
+  str_line = line.decode("utf-8")
+
+  lineLength = len(str_line)
+
   for n in range(0, lineLength):
-    c = line[n]
-    outputFile.write(chr(c).encode("utf-8"))
+    c = str_line[n]
+    outputFile.write(c.encode("utf-8"))
