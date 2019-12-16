@@ -97,6 +97,33 @@ def rrmerge_Buffer_Line(file_list, outputFile, bufferSize):
                     writeln_line(file_to_write, line)
 
 # Read/Write with defined buffer size
+# Based on length_buffer
+def rrmerge_buffer_buffer(fileListArray, outputFilePath, bufferSize):
+    files_to_read = initializeFileObjectsBuffer(fileListArray, bufferSize)
+    file_to_write = open(outputFilePath, 'w+b')
+    while not all([x.isClosed for x in files_to_read]):
+        for file in files_to_read:
+            if not file.isClosed:
+                line = b''
+                while line is not None and b'\n' not in line:
+                    if cannotUseLastBuffer(file.bufferInitPos, file.readPos, bufferSize) or usedWholeBuffer(file.bufferPos, bufferSize):
+                        file.readPos += file.bufferPos
+                        file.readBuffer = file.fileObject.read(bufferSize)
+                        file.bufferInitPos = file.readPos
+                        file.bufferPos = 0
+                    tempLine, file.bufferPos = readln_buffer(file.readBuffer, file.bufferPos)
+                    if tempLine == b'':
+                        line = None
+                    else:
+                        line += tempLine
+                        file.readPos += len(tempLine)
+                if not line:
+                    file.isClosed = True
+                    file.fileObject.close()
+                else:
+                    writeln_buffer(file_to_write, line, bufferSize)
+
+# Read/Write with defined buffer size
 # Based on length_line
 def rrmerge_line_buffer(fileListArray, outputFilePath, bufferSize):
     fileObjectArray = []
