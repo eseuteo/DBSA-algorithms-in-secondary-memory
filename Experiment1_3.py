@@ -6,10 +6,10 @@ from time import time
 from CombinedReadWrite import rrmerge_Line_Line, read_length_line_write_mmap, rrmerge_line_buffer, rrmerge_Buffer_Char, rrmerge_Buffer_Line
 
 
-with open(str(Path.cwd())+'/Experiment1_3_parameters.json') as parametersFile:
+with open(str(Path.cwd())+'/input/Experiment1_3_parameters.json') as parametersFile:
     parameters = json.load(parametersFile)
     csv_folder = parameters['csv_folder']
-    output_filename = parameters['output_filename']
+    output_filename = 'output/' + parameters['output_filename']
 
 filenames = []
 for filename in os.listdir(csv_folder):

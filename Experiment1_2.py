@@ -5,10 +5,10 @@ from pathlib import Path
 from time import time
 from RandomReading import randjump_char, randjump_readln, randjump_buffer, randjump_mmap
 
-with open(str(Path.cwd())+'/Experiment1_2_parameters.json') as parametersFile:
+with open(str(Path.cwd())+'/input/Experiment1_2_parameters.json') as parametersFile:
     parameters = json.load(parametersFile)
     csv_folder = parameters['csv_folder']
-    output_filename = parameters['output_filename']
+    output_filename = 'output/' + parameters['output_filename']
 
 output_file = open(str(output_filename) + '.csv', 'w', newline='')
 field_names = ['implementation', 'file', 'length', 'running_time', 'buffer_size']
