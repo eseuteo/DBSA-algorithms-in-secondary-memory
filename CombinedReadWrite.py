@@ -166,3 +166,40 @@ def rrmerge_line_mmap(inputFiles, outputFile, bufferSize, writePosition):
                     mapping, writePosition, actualFilePosition = writeln_mmap(mapping, writePosition, actualFilePosition, actualBufferSize, totalSize, wFile, bline)
     mapping.close
     wFile.close()
+
+def rrmerge_buffer_mmap(file_list, outputFile, bufferSize, writePosition):
+    files_to_read = initializeFileObjectsBuffer(file_list, bufferSize)
+    totalSize = 0
+
+    for rFile in files_to_read:
+        rFileSize = os.fstat(rFile.fileObject.fileno()).st_size
+        totalSize += rFileSize
+
+    file_to_write = open(outputFile, 'w+b')
+
+    mapping, actualFilePosition, actualBufferSize = getNewMapRegion(writePosition, bufferSize, totalSize, file_to_write, 1)
+
+    while not all([x.isClosed for x in files_to_read]):
+        for file in files_to_read:
+            if not file.isClosed:
+                line = b''
+                while line is not None and b'\n' not in line:
+                    if cannotUseLastBuffer(file.bufferInitPos, file.readPos, bufferSize) or usedWholeBuffer(file.bufferPos, bufferSize):
+                        file.readPos += file.bufferPos
+                        file.readBuffer = file.fileObject.read(bufferSize)
+                        file.bufferInitPos = file.readPos
+                        file.bufferPos = 0
+                    tempLine, file.bufferPos = readln_buffer(file.readBuffer, file.bufferPos)
+                    if tempLine == b'':
+                        line = None
+                    else:
+                        line += tempLine
+                        file.readPos += len(tempLine)
+                if not line:
+                    file.isClosed = True
+                    file.fileObject.close()
+                else:
+                    mapping, writePosition, actualFilePosition = writeln_mmap(mapping, writePosition, actualFilePosition, actualBufferSize, totalSize, file_to_write, line)
+    
+    mapping.close
+    file_to_write.close()

@@ -3,7 +3,7 @@ import json
 import csv
 from pathlib import Path
 from time import time
-from CombinedReadWrite import rrmerge_Line_Line, rrmerge_line_mmap, rrmerge_line_buffer, rrmerge_Buffer_Char, rrmerge_Buffer_Line, rrmerge_buffer_buffer
+from CombinedReadWrite import rrmerge_Line_Line, rrmerge_line_mmap, rrmerge_line_buffer, rrmerge_Buffer_Char, rrmerge_Buffer_Line, rrmerge_buffer_buffer, rrmerge_buffer_mmap
 
 
 with open(str(Path.cwd())+'/input/Experiment1_3_parameters.json') as parametersFile:
@@ -45,5 +45,12 @@ for filename in os.listdir(csv_folder):
 
 # #--------------------------------------------------
 # # Merge Read_Buffer with Write_Buffer
+# bufferSize = 100
+# rrmerge_buffer_buffer(filenames, output_filename, bufferSize)
+
+# #--------------------------------------------------
+# # Merge Read_Buffer with Write_Map
 bufferSize = 100
-rrmerge_buffer_buffer(filenames, output_filename, bufferSize)
+writePosition = 0
+output_filename = "C:/tmp_DSA/" + output_filename
+rrmerge_buffer_mmap(filenames, output_filename, bufferSize, writePosition)
