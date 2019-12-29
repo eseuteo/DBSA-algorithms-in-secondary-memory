@@ -73,6 +73,8 @@ def randjump_buffer(f, j, bufferSize):
 
         sum += len(line)
         count += 1
+    
+    file.close()
     return sum
 
 def randjump_mmap(f, j, bufferSize):
@@ -119,3 +121,4 @@ def randjump_mmap(f, j, bufferSize):
         count += 1
 
     file.close()
+    return sum

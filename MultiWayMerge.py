@@ -20,7 +20,7 @@ def writeSortedFile(arrLines, k, outputFile):
     #   csv.reader generates the correct output
     for bline in arrLines:
         strline = [bline.decode("utf-8")]
-        for lineColumns in reader(strline):
+        for lineColumns in reader(strline, delimiter=','):
             sortColValue = lineColumns[sort_index]
         linesList.append([sortColValue,bline])
     
@@ -76,10 +76,71 @@ def extsort_Line_Line(f, k, M, d):
     # Print complete list
     print(list(sortedFilesQueue))
 
+    currentFileIndex = len(sortedFilesQueue)
+    while len(sortedFilesQueue) > 1:
+        # Take d files from heap
+        filesToSort = [heapq.heappop(sortedFilesQueue) for x in range(d)]
+        count = len(filesToSort)
+        # Create bufferList (as a dictionary with two elements: filePosition (int) and buffer (list of str))
+        bufferList = [{'filePosition': 0, 'buffer': []} for x in range(d)]
+
+        # Open output file
+        rFile = open(f, 'r+b')
+        fileName = os.path.basename(rFile.name).split(".")[0]
+        outputFileName = "output/" + fileName + "_" + str(currentFileIndex) + ".csv"
+        outputFile = open(outputFileName, 'w+b')
+        currentFileIndex += 1
+
+        # While still reading at least one file
+        while count > 0:
+            # Check each buffer
+            for i in range(d):
+                # If already empty
+                if bufferList[i]['buffer'] == []:
+                    bufferList[i] = loadBuffer(bufferList[i], filesToSort[i][1], M, count)
+                # If read all the file
+                if bufferList[i]['filePosition'] == filesToSort[i][2]:
+                    count -= 1
+                    os.remove(filesToSort[i][1])
+            ### Aquí se llama a tu función, Jesús ###
+            # bufferList es una lista de diccionarios:
+                # la key "buffer" (se accede como bufferList[índice]['buffer'] contiene una lista de byte strings)
+                # la key "filePosition" contiene el índice del buffer dentro del archivo (creo que esto no lo necesitas para nada)
+            # outputFile es un fileObject abierto con 'w+b'
+            # k es la columna con respecto a la que hay que ordenar (no sé si es necesario, creo que sí)
+            ##########################################
+            takeMinLine(bufferList, outputFile, k)        
+
     # Print filePath and fileSize from first file in queue
     fileTuple = heapq.heappop(sortedFilesQueue)
+
     filePath = fileTuple[1]
     fileSize = fileTuple[2]
     print("File: " + str(filePath) + " Size: " + str(fileSize))
 
+    return 0
+
+def loadBuffer(buffer, f, M, d):
+    """
+    Takes a dictionary (buffer), an int (filePosition), a str (f),
+    an int (M) and an int (d). Then opens the file f and fills buffer
+    with lines from f (starting from filePosition (element in the dictionary)) 
+    until the size of buffer (in bytes) is greater than M / d.
+    """
+    file = open(f, 'r+b')
+    maxBufferSize = M / d
+    bufferSize = 0
+
+    while bufferSize < maxBufferSize:
+        nextLine, buffer['filePosition'] = readln_line(file, buffer['filePosition'])
+        buffer['buffer'].append(nextLine)
+        bufferSize += len(nextLine)
+    file.close()
+
+    return buffer
+
+def takeMinLine(bufferList, outputFile, k):
+    """
+    Funcion de Jesus
+    """
     return 0
