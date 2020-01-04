@@ -10,7 +10,7 @@ import heapq
 import natsort
 import numpy as np
 
-def writeSortedFile(arrLines, k, outputFile):
+def writeSortedFile(arrLines, k, outputFile, bufferSize):
     sort_index = k - 1 # To sort on the 2nd column, arrLines[1] should be selected
     linesList = []
 
@@ -31,12 +31,20 @@ def writeSortedFile(arrLines, k, outputFile):
     linesList = natsort.natsorted(linesList)
 
     file_to_write = open(str(Path.cwd()) + str(outputFile), 'w+b')
-    # file_to_write = open(outputFile, 'w+b')
+    # Fill the file with \0
+    totalSize = 0
+    for line in linesList:
+        totalSize += len(line[1])
+    file_to_write.write(totalSize * b'\0')
+
+    writePosition = 0
+
+    mapping, actualFilePosition, actualBufferSize = getNewMapRegion(writePosition, bufferSize, totalSize, file_to_write, 1)
     for lineToWrite in linesList:
-        writeln_line(file_to_write, lineToWrite[1])
+        mapping, writePosition, actualFilePosition = writeln_mmap(mapping, writePosition, actualFilePosition, bufferSize, totalSize, file_to_write, lineToWrite[1])
     file_to_write.close()
 
-def generateSortedFiles(f, k, M):
+def generateSortedFiles(f, k, M, bufferSize):
     rFile = open(f, 'r+b')
     fileName = os.path.basename(rFile.name).split(".")[0]
     sortedFiles = []
@@ -55,7 +63,7 @@ def generateSortedFiles(f, k, M):
         line, current_position = readln_line(rFile, current_position)
         if not line:
             # Write in a file the remaining content and add it to the queue
-            writeSortedFile(linesToWrite, k, outputFile)
+            writeSortedFile(linesToWrite, k, outputFile, bufferSize)
             heapq.heappush(sortedFiles, (currentFileIndex, outputFile, mFileSize))
             break
         # Add lines to an array
@@ -63,7 +71,7 @@ def generateSortedFiles(f, k, M):
         mFileSize += len(line)
         if mFileSize > M: # Max file size reached
             # Write lines to file and add it to the queue
-            writeSortedFile(linesToWrite, k, outputFile)
+            writeSortedFile(linesToWrite, k, outputFile, bufferSize)
             heapq.heappush(sortedFiles, (currentFileIndex, outputFile, mFileSize))
             # Reset variables for next file to be written
             mFileSize = 0
@@ -75,12 +83,10 @@ def generateSortedFiles(f, k, M):
 
     return sortedFiles
 
-def extsort_Line_Line(f, k, M, d, bufferSize):
-    sortedFilesQueue = generateSortedFiles(f, k, M)
-    # Print complete list
-    # print(list(sortedFilesQueue))
-
+def extsort_Line_Mmap(f, k, M, d, bufferSize):
+    sortedFilesQueue = generateSortedFiles(f, k, M, bufferSize)
     currentFileIndex = len(sortedFilesQueue)
+
     while len(sortedFilesQueue) > 1:
         # If amount of files is lower than d, then use that number 
         d = min(d, len(sortedFilesQueue))
@@ -111,6 +117,7 @@ def extsort_Line_Line(f, k, M, d, bufferSize):
         for _file in filesToSort:
             totalSize += _file[2]
         outputFile.write(totalSize * b'\0')
+
 
         writePosition = 0
 
