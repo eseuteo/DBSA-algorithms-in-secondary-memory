@@ -17,16 +17,29 @@ field_names = ['implementation', 'file', 'length', 'running_time', 'buffer_size'
 writer = csv.DictWriter(output_file, fieldnames=field_names) 
 writer.writeheader()
 
+# #--------------------------------------------------
+# # Multi-way Merge with Read_Line and Write_Line
+# for filename in os.listdir(csv_folder):
+#     print("Merge-sort file " + filename + " with readln_line and writeln_line")
+#     f = csv_folder + '/' + filename # File to sort
+#     k = 2 # Sort on kth column
+#     M = 512000 # Number of bytes of available memory
+#     d = 5 # Number of streams to merge
+#     start = time()
+#     result = extsort_Line_Line(f, k, M, d)
+#     end = time()
+#     writer.writerow({'implementation':"Read_Line_Write_Line", 'file':filename, 'length': str(result), 'running_time': str(end - start), 'buffer_size':'-'})
+
 #--------------------------------------------------
-# Multi-way Merge with Read_Line and Write_Line
+# Multi-way Merge with Read_Line and Write_Mmap
 for filename in os.listdir(csv_folder):
     print("Merge-sort file " + filename + " with readln_line and writeln_line")
     f = csv_folder + '/' + filename # File to sort
     k = 2 # Sort on kth column
     M = 512000 # Number of bytes of available memory
     d = 5 # Number of streams to merge
+    b = 2 ** 16
     start = time()
-    result = extsort_Line_Line(f, k, M, d)
+    result = extsort_Line_Line(f, k, M, d, b)
     end = time()
     writer.writerow({'implementation':"Read_Line_Write_Line", 'file':filename, 'length': str(result), 'running_time': str(end - start), 'buffer_size':'-'})
-

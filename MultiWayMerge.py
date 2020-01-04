@@ -1,5 +1,6 @@
 from ReadWriteByLine import readln_line, writeln_line
 from ReadWriteByBuffer import readln_buffer
+from ReadWriteByMmap import writeln_mmap, getNewMapRegion
 from csv import reader
 from pathlib import Path
 import os
@@ -74,7 +75,7 @@ def generateSortedFiles(f, k, M):
 
     return sortedFiles
 
-def extsort_Line_Line(f, k, M, d):
+def extsort_Line_Line(f, k, M, d, bufferSize):
     sortedFilesQueue = generateSortedFiles(f, k, M)
     # Print complete list
     # print(list(sortedFilesQueue))
@@ -105,10 +106,19 @@ def extsort_Line_Line(f, k, M, d):
             bufferList[i], fileSize = loadBuffer(bufferList[i], filesToSort[i][1], M, count, fileSize)
             linesList = firstLoad(bufferList, linesList, sort_index, i, d)
 
+        # Fill the file with \0
+        totalSize = 0
+        for _file in filesToSort:
+            totalSize += _file[2]
+        outputFile.write(totalSize * b'\0')
+
+        writePosition = 0
+
+        mapping, actualFilePosition, actualBufferSize = getNewMapRegion(writePosition, bufferSize, totalSize, outputFile, 1)
         # While still reading at least one file
         while count > 0:
             # Take the minimum line (smallest) and print it on the new file
-            bufferListIndex = takeMinLine(linesList, outputFile)
+            bufferListIndex, mapping, writePosition, actualFilePosition = takeMinLineMmap(linesList, outputFile, mapping, writePosition, actualFilePosition, actualBufferSize, totalSize)
 
             # If read all the file and wrote all the buffer
             if bufferList[bufferListIndex]['buffer'] == [] and bufferList[bufferListIndex]['filePosition'] == -1 and any(value is None for  value in linesList[bufferListIndex]):
@@ -195,3 +205,18 @@ def takeMinLine(linesList, outputFile):
     linesList[bufferListIndex] = [None, None]
 
     return bufferListIndex
+
+def takeMinLineMmap(linesList, outputFile, mapping, writePos, actualFilePos, mapSize, rFileSize):
+    """
+    Funcion de Jesus
+    """
+    minRow = natsort.index_natsorted(linesList, key=lambda x: (x is None, x))
+    bufferListIndex = int(minRow[0])
+    minLine = natsort.natsorted(linesList, key=lambda x: (x is None, x))
+    minBytes = bytes(minLine[0][1], 'utf-8')
+
+    mapping, writePos, actualFilePos = writeln_mmap(mapping, writePos, actualFilePos, mapSize, rFileSize, outputFile, minBytes)
+
+    linesList[bufferListIndex] = [None, None]
+
+    return bufferListIndex, mapping, writePos, actualFilePos
