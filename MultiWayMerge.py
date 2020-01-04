@@ -41,7 +41,7 @@ def writeSortedFile(arrLines, k, outputFile, bufferSize):
 
     mapping, actualFilePosition, actualBufferSize = getNewMapRegion(writePosition, bufferSize, totalSize, file_to_write, 1)
     for lineToWrite in linesList:
-        mapping, writePosition, actualFilePosition = writeln_mmap(mapping, writePosition, actualFilePosition, bufferSize, totalSize, file_to_write, lineToWrite[1])
+        mapping, writePosition, actualFilePosition = writeln_mmap(mapping, writePosition, actualFilePosition, actualBufferSize, totalSize, file_to_write, lineToWrite[1])
     file_to_write.close()
 
 def generateSortedFiles(f, k, M, bufferSize):
