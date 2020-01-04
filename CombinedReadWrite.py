@@ -152,6 +152,7 @@ def rrmerge_line_mmap(inputFiles, outputFile, bufferSize, writePosition):
         files_to_read.append(FileObject(rFile, 0, False, None))
     
     wFile = open(outputFile, 'w+b')
+    wFile.write(totalSize * b'\0')
 
     mapping, actualFilePosition, actualBufferSize = getNewMapRegion(writePosition, bufferSize, totalSize, wFile, 1)
     
@@ -176,6 +177,7 @@ def rrmerge_buffer_mmap(file_list, outputFile, bufferSize, writePosition):
         totalSize += rFileSize
 
     file_to_write = open(outputFile, 'w+b')
+    file_to_write.write(totalSize * b'\0')
 
     mapping, actualFilePosition, actualBufferSize = getNewMapRegion(writePosition, bufferSize, totalSize, file_to_write, 1)
 

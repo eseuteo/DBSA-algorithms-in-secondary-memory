@@ -1,9 +1,0 @@
-implementation,running_time,buffer_size
-"Read by Line, Write by Char",17.61885452,-
-"Read by Line, Write by Line",5.537346601,-
-"Read by Line, Write by Buffer",6.793365717,-
-"Read by Line, Write by Map",6.594867229,-
-"Read by Buffer, Write by Char",21.34775352,-
-"Read by Buffer, Write by Line",9.019439459,-
-"Read by Buffer, Write by Buffer",10.63214898,-
-"Read by Buffer, Write by Map",10.62687492,-

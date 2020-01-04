@@ -37,7 +37,7 @@ writer.writerow({'implementation':"Read by Line, Write by Line", 'running_time':
 
 #--------------------------------------------------
 # Merge Read_Line with Write_Buffer
-for bufferSize in [2 ** x for x in range(16)]:
+for bufferSize in [2 ** x for x in range(4, 20)]:
     start = time()
     rrmerge_line_buffer(filenames, output_filename, bufferSize)
     end = time()
@@ -45,7 +45,7 @@ for bufferSize in [2 ** x for x in range(16)]:
 
 #--------------------------------------------------
 # Merge Read_Line with Write_Map
-for bufferSize in [2 ** x for x in range(16)]:
+for bufferSize in [2 ** x for x in range(4, 20)]:
     start = time()
     rrmerge_line_mmap(filenames, output_filename, bufferSize, writePosition)
     end = time()
@@ -53,7 +53,7 @@ for bufferSize in [2 ** x for x in range(16)]:
 
 #--------------------------------------------------
 # Merge Read_Buffer with Write_Char
-for bufferSize in [2 ** x for x in range(16)]:
+for bufferSize in [2 ** x for x in range(4, 20)]:
     start = time()
     rrmerge_Buffer_Char(filenames, output_filename, bufferSize)
     end = time()
@@ -61,7 +61,7 @@ for bufferSize in [2 ** x for x in range(16)]:
 
 #--------------------------------------------------
 # Merge Read_Buffer with Write_Line
-for bufferSize in [2 ** x for x in range(16)]:
+for bufferSize in [2 ** x for x in range(4, 20)]:
     start = time()
     rrmerge_Buffer_Line(filenames, output_filename, bufferSize)
     end = time()
@@ -69,7 +69,7 @@ for bufferSize in [2 ** x for x in range(16)]:
 
 #--------------------------------------------------
 # Merge Read_Buffer with Write_Buffer
-for bufferSize in [2 ** x for x in range(16)]:
+for bufferSize in [2 ** x for x in range(4, 20)]:
     start = time()
     rrmerge_buffer_buffer(filenames, output_filename, bufferSize)
     end = time()
@@ -77,7 +77,7 @@ for bufferSize in [2 ** x for x in range(16)]:
 
 #--------------------------------------------------
 # Merge Read_Buffer with Write_Map
-for bufferSize in [2 ** x for x in range(16)]:
+for bufferSize in [2 ** x for x in range(4, 20)]:
     start = time()
     rrmerge_buffer_mmap(filenames, output_filename, bufferSize, writePosition)
     end = time()
