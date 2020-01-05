@@ -7,27 +7,32 @@ from ReadWriteByBuffer import readln_buffer
 from ReadWriteByMmap import read_bline_mmap
 from RandomReading import cannotUseLastBuffer, usedWholeBuffer
 
-#------------------------------------
-# Sequential Reading function - Character
 def length_char(f):
-  sum = 0
-  seekPos = 0
+    """
+    Given a file, reads it sequentially char by char.
+    Returns the number of bytes read.
+    """
+    sum = 0
+    seekPos = 0
 
-  # Open file for reading in binary mode switching buffering off
-  file = open(f, "r+b", 0)
+    # Open file for reading in binary mode switching buffering off
+    file = open(f, "r+b", 0)
 
-  # Read all lines in a file. readln_char returns the line that was read and the position of the next line to be read
-  # When the end of the file is reached, seekPos will be -1, ending the loop
-  while seekPos != -1:
-    line, seekPos = readln_char(file,seekPos)
-    sum += len(line)
+    # Read all lines in a file. readln_char returns the line that was read and the position of the next line to be read
+    # When the end of the file is reached, seekPos will be -1, ending the loop
+    while seekPos != -1:
+        line, seekPos = readln_char(file,seekPos)
+        sum += len(line)
 
-  file.close()
+    file.close()
 
-  return sum
-#------------------------------------
+    return sum
 
 def length_line(fileName):
+    """
+    Given a file, reads it sequentially line by line.
+    Returns the number of bytes read.
+    """
     file = open(fileName, 'r+b')
     sum = 0
     current_position = 0
@@ -42,6 +47,10 @@ def length_line(fileName):
     return sum
 
 def length_buffer(fileName, bufferSize):
+    """
+    Given a file and a bufferSize, reads it sequentially regarding a 
+    buffer. Returns the number of bytes read.
+    """
     sum = 0
     currentPositionInFile = 0
 
@@ -75,6 +84,10 @@ def length_buffer(fileName, bufferSize):
     return sum
 
 def length_mmap(fileName, bufferSize):
+    """
+    Given a file and a bufferSize, reads it sequentially with memory
+    mapping. Returns the number of bytes read.
+    """
     file = open(fileName, 'r+b', bufferSize)
     sum = 0
     current_position = 0

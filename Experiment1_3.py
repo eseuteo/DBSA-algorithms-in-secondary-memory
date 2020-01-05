@@ -5,7 +5,6 @@ from pathlib import Path
 from time import time
 from CombinedReadWrite import rrmerge_Line_Char, rrmerge_Line_Line, rrmerge_line_mmap, rrmerge_line_buffer, rrmerge_Buffer_Char, rrmerge_Buffer_Line, rrmerge_buffer_buffer, rrmerge_buffer_mmap
 
-
 with open(str(Path.cwd())+'/input/Experiment1_3_parameters.json') as parametersFile:
     parameters = json.load(parametersFile)
     csv_folder = parameters['csv_folder']

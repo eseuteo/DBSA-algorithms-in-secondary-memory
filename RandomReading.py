@@ -8,6 +8,10 @@ from ReadWriteByBuffer import readln_buffer
 from ReadWriteByMmap import read_bline_mmap
 
 def randjump_char(f, j):
+    """
+    Given a file and an integer j, performs j jumps inside the file
+    and reads (char approach) j lines. Returns the amount of bytes read.
+    """
     sum = 0
     count = 0
 
@@ -24,6 +28,10 @@ def randjump_char(f, j):
     return sum
 
 def randjump_readln(f, j):
+    """
+    Given a file and an integer j, performs j jumps inside the file
+    and reads (line approach) j lines. Returns the amount of bytes read.
+    """
     sum = 0
     count = 0
 
@@ -40,12 +48,25 @@ def randjump_readln(f, j):
     return sum
 
 def cannotUseLastBuffer(bufferStart, newPosition, bufferSize):
+    """
+    Auxiliary function for assessing if the previous jump buffer can
+    be reused.
+    """
     return not bufferStart <= newPosition < bufferStart + bufferSize
 
 def usedWholeBuffer(currentPosition, bufferSize):
+    """
+    Auxiliary function for assessing if the current buffer has been
+    completely used.
+    """
     return currentPosition == bufferSize
 
 def randjump_buffer(f, j, bufferSize):
+    """
+    Given a file, an integer j and a bufferSize, performs j jumps 
+    inside the file and reads (buffered approach) j lines. Returns 
+    the amount of bytes read.
+    """
     sum = 0
     count = 0
 
@@ -78,6 +99,11 @@ def randjump_buffer(f, j, bufferSize):
     return sum
 
 def randjump_mmap(f, j, bufferSize):
+    """
+    Given a file, an integer j and a bufferSize, performs j jumps 
+    inside the file and reads (mapped approach) j lines. Returns 
+    the amount of bytes read.
+    """
     sum = 0
     count = 0
 

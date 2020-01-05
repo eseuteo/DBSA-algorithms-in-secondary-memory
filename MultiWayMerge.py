@@ -11,6 +11,12 @@ import natsort
 import numpy as np
 
 def writeSortedFile(arrLines, k, outputFile, bufferSize):
+    """
+    Given a list of lines, sorts the list regarding the element in
+    position k - 1 and writes it using the mapped approach with a
+    mapped portion of size bufferSize in the file with the name
+    in outputFile.
+    """
     sort_index = k - 1 # To sort on the 2nd column, arrLines[1] should be selected
     linesList = []
 
@@ -45,6 +51,11 @@ def writeSortedFile(arrLines, k, outputFile, bufferSize):
     file_to_write.close()
 
 def generateSortedFiles(f, k, M, bufferSize):
+    """
+    Given a file f, a column index k, a memory size M and a buffer 
+    size bufferSize, generates a priority queue of files of a size
+    similar to M with the content of each of the files sorted.
+    """
     rFile = open(f, 'r+b')
     fileName = os.path.basename(rFile.name).split(".")[0]
     sortedFiles = []
@@ -84,6 +95,13 @@ def generateSortedFiles(f, k, M, bufferSize):
     return sortedFiles
 
 def extsort_Line_Mmap(f, k, M, d, bufferSize):
+    """
+    Main function for performing the multiway merge. Firstly
+    generates the files and then merges them d by d, generating
+    new files that are appended to the priority queue.
+    This is done until the resulting file is the same as the
+    input one, but sorted.
+    """
     sortedFilesQueue = generateSortedFiles(f, k, M, bufferSize)
     currentFileIndex = len(sortedFilesQueue)
 
@@ -184,38 +202,23 @@ def loadBuffer(buffer, f, M, d, fileSize):
 
 def firstLoad(bufferList, linesList, sort_index, i, d):
     """
-    Funcion de Jesus
+    Generates the line list used for obtaining the next line to be
+    written in the output file.
     """
     bline = bufferList[i]['buffer'].pop(0)
     strline = [bline.decode("utf-8")]
     for lineColumns in reader(strline, delimiter=','):
         minColValue = lineColumns[sort_index]
-    # linesList = np.append(linesList, newLine, axis=0)
     newLine = [minColValue,strline[0]]
     linesList[i] = newLine
 
 
     return linesList
 
-def takeMinLine(linesList, outputFile):
-    """
-    Funcion de Jesus
-    """
-    # minVal = np.amin(linesList, axis=0)
-    # minRow = np.where(linesList == np.amin(linesList))
-    minRow = natsort.index_natsorted(linesList, key=lambda x: (x is None, x))
-    bufferListIndex = int(minRow[0])
-    minLine = natsort.natsorted(linesList, key=lambda x: (x is None, x))
-    minBytes = bytes(minLine[0][1], 'utf-8')
-    # print(minBytes)
-    writeln_line(outputFile, minBytes)
-    linesList[bufferListIndex] = [None, None]
-
-    return bufferListIndex
-
 def takeMinLineMmap(linesList, outputFile, mapping, writePos, actualFilePos, mapSize, rFileSize):
     """
-    Funcion de Jesus
+    Writes the smallest line from linesList to outputFile using the
+    mapped approach.
     """
     minRow = natsort.index_natsorted(linesList, key=lambda x: (x is None, x))
     bufferListIndex = int(minRow[0])

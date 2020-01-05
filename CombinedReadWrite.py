@@ -7,12 +7,24 @@ from ClassFileObject import FileObject
 import os
 
 def initializeFileObjects(file_list):
+    """
+    Generates a list of ClassFileObject with a fileObject, an
+    integer indicating where is the current pointer of the file
+    and a boolean indicating if it has been totally read.
+    """
     files_to_read = []
     for file in file_list:
         files_to_read.append(FileObject(open(file, 'r+b'), 0, False))
     return files_to_read
 
 def initializeFileObjectsBuffer(file_list, bufferSize):
+    """
+    Generates a list of ClassFileObject especially for the buffered
+    version with a fileObject, an integer indicating where is the 
+    current pointer of the file, a boolean indicating if it has been,
+    a buffer, the position the buffer starts and the current position
+    inside the buffer.
+    """
     files_to_read = []
     for file in file_list:
         fileObject = open(file, 'r+b', bufferSize)
@@ -21,6 +33,11 @@ def initializeFileObjectsBuffer(file_list, bufferSize):
     return files_to_read
 
 def rrmerge_Line_Line(file_list, outputFile):
+    """
+    Merges the files inside a list and writes them into outputFile
+    using the line by line approach for reading and the line by
+    line approach for writing.
+    """
     files_to_read = initializeFileObjects(file_list)
     file_to_write = open(outputFile, 'w+b')
     while not all([x.isClosed for x in files_to_read]):
@@ -34,6 +51,11 @@ def rrmerge_Line_Line(file_list, outputFile):
                     writeln_line(file_to_write, line)
 
 def rrmerge_Line_Char(file_list, outputFile):
+    """
+    Merges the files inside a list and writes them into outputFile
+    using the line by line approach for reading and the char by char
+     approach for writing.
+    """
     files_to_read = initializeFileObjects(file_list)
     file_to_write = open(outputFile, 'w+b')
     while not all([x.isClosed for x in files_to_read]):
@@ -47,6 +69,11 @@ def rrmerge_Line_Char(file_list, outputFile):
                     writeln_char(file_to_write, line)
 
 def rrmerge_Buffer_Char(file_list, outputFile, bufferSize):
+    """
+    Merges the files inside a list and writes them into outputFile
+    using the buffered approach for reading and the char by char
+     approach for writing.
+    """
     files_to_read = initializeFileObjectsBuffer(file_list, bufferSize)
     file_to_write = open(outputFile, 'w+b')
     while not all([x.isClosed for x in files_to_read]):
@@ -72,6 +99,11 @@ def rrmerge_Buffer_Char(file_list, outputFile, bufferSize):
                     writeln_char(file_to_write, line)
 
 def rrmerge_Buffer_Line(file_list, outputFile, bufferSize):
+    """
+    Merges the files inside a list and writes them into outputFile
+    using the buffered approach for reading and the line by line
+     approach for writing.
+    """
     files_to_read = initializeFileObjectsBuffer(file_list, bufferSize)
     file_to_write = open(outputFile, 'w+b')
     while not all([x.isClosed for x in files_to_read]):
@@ -96,9 +128,12 @@ def rrmerge_Buffer_Line(file_list, outputFile, bufferSize):
                 else:
                     writeln_line(file_to_write, line)
 
-# Read/Write with defined buffer size
-# Based on length_buffer
 def rrmerge_buffer_buffer(fileListArray, outputFilePath, bufferSize):
+    """
+    Merges the files inside a list and writes them into outputFile
+    using the buffered approach for reading and the buffered
+    approach for writing.
+    """
     files_to_read = initializeFileObjectsBuffer(fileListArray, bufferSize)
     file_to_write = open(outputFilePath, 'w+b')
     while not all([x.isClosed for x in files_to_read]):
@@ -123,9 +158,12 @@ def rrmerge_buffer_buffer(fileListArray, outputFilePath, bufferSize):
                 else:
                     writeln_buffer(file_to_write, line, bufferSize)
 
-# Read/Write with defined buffer size
-# Based on length_line
 def rrmerge_line_buffer(fileListArray, outputFilePath, bufferSize):
+    """
+    Merges the files inside a list and writes them into outputFile
+    using the line approach for reading and the buffered
+    approach for writing.
+    """
     fileObjectArray = []
     outputFile = open(outputFilePath, 'w+b')
     for file in fileListArray:
@@ -140,6 +178,11 @@ def rrmerge_line_buffer(fileListArray, outputFilePath, bufferSize):
                     writeln_buffer(outputFile, line, bufferSize)
 
 def rrmerge_line_mmap(inputFiles, outputFile, bufferSize, writePosition):
+    """
+    Merges the files inside a list and writes them into outputFile
+    using the line approach for reading and the mapped approach
+    for writing.
+    """
     files_to_read = []
     totalSize = 0
 
@@ -169,6 +212,11 @@ def rrmerge_line_mmap(inputFiles, outputFile, bufferSize, writePosition):
     wFile.close()
 
 def rrmerge_buffer_mmap(file_list, outputFile, bufferSize, writePosition):
+    """
+    Merges the files inside a list and writes them into outputFile
+    using the buffered approach for reading and the mapped approach
+    for writing.
+    """
     files_to_read = initializeFileObjectsBuffer(file_list, bufferSize)
     totalSize = 0
 

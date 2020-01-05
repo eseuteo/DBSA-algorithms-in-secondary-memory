@@ -1,4 +1,7 @@
 class FileObject:
+    """
+    Class created for the experiment 1.3.
+    """
     fileObject = None
     readPos = 0
     isClosed = False
